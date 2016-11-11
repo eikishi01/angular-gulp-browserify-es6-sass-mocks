@@ -1,0 +1,99 @@
+@at-root {
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-regular.woff) format("woff");
+        font-weight: 400;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-italic.woff) format("woff");
+        font-weight: 400;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-bold.woff) format("woff");
+        font-weight: 700;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-bolditalic.woff) format("woff");
+        font-weight: 700;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "Roboto Condensed";
+        src: url(./fonts/roboto-condensed-regular.woff) format("woff");
+        font-weight: 400;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto Condensed";
+        src: url(./fonts/roboto-condenseditalic.woff) format("woff");
+        font-weight: 400;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "Roboto Condensed";
+        src: url(./fonts/roboto-boldcondensed.woff) format("woff");
+        font-weight: 700;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto Condensed";
+        src: url(./fonts/roboto-boldcondenseditalic.woff) format("woff");
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-thin.woff) format("woff");
+        font-weight: 100;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-thinitalic.woff) format("woff");
+        font-weight: 100;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-light.woff) format("woff");
+        font-weight: 300;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-lightitalic.woff) format("woff");
+        font-weight: 300;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-medium.woff) format("woff");
+        font-weight: 500;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-mediumitalic.woff) format("woff");
+        font-weight: 500;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-black.woff) format("woff");
+        font-weight: 900;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Roboto";
+        src: url(./fonts/roboto-blackitalic.woff) format("woff");
+        font-weight: 900;
+        font-style: italic;
+    }
+}

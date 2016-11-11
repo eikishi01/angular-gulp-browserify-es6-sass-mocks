@@ -1,0 +1,66 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "amd": true,
+        "mocha": true,
+        "phantomjs": true,
+        "jquery": true,
+        "jasmine": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        "indent": [
+            "error",
+            4
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "block-scoped-var": [
+            "error"
+        ],
+        "complexity": [
+            "error",
+            10
+        ],
+        "curly": "error",
+        "eqeqeq": "error",
+        "default-case": "error",
+        "dot-notation": [
+            "error",
+            {
+                "allowKeywords": true
+            }
+        ],
+        "guard-for-in": "error",
+        "no-else-return": "error",
+        "no-eq-null": "error",
+        "no-eval": "error",
+        "no-floating-decimal": "error",
+        "no-global-assign": "error",
+        "no-implicit-coercion": "error",
+        "no-implied-eval": "error",
+        "no-empty-function": "error",
+        "strict": ["error", "global"],
+        "wrap-iife": ["error", "any"],
+        "vars-on-top": "error",
+        "no-use-before-define": "error",
+        "array-bracket-spacing": ["error", "never"],
+        "comma-style": ["error", "last"],
+        "eol-last": ["error", "always"],
+        "func-call-spacing": ["error", "never"],
+        "func-name-matching": "error",
+        "space-before-function-paren": ["error", "never"]
+    }
+}
