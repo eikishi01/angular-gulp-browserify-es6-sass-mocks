@@ -4,15 +4,13 @@
   "description": "Angular App seed including Gulp, ES6 support, angularJS 1.5, Browserify, Sass, Express mock server etc.",
   "main": "app.js",
   "scripts": {
-    "build": "gulp",
     "clean": "rimraf *.log *.pid",
     "prestart": "npm install",
     "release": "gulp prod",
-    "start": "npm run build",
-    "test": "gulp build-test",
-    "test:watch": "gulp build-test:watch",
+    "start": "gulp",
     "stop": "npm run clean",
-    "command": "gulp js-int"
+    "test": "gulp build-test",
+    "test:watch": "gulp build-test:watch"
   },
   "repository": {
     "type": "git",
@@ -20,11 +18,11 @@
   },
   "keywords": [
     "AngularJS",
-    "Gulp",
     "Browserify",
     "ES6",
-    "SASS",
-    "Express"
+    "Express",
+    "Gulp",
+    "SASS"
   ],
   "author": "Jesus Manuel Picado Herrera",
   "license": "GPL-3.0",
