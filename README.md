@@ -13,7 +13,7 @@ Feature list:
 
 ## How to use:
 
-Start Local Server:
+Start Local DEV Server:
 
 ```javascript
 npm start
@@ -22,6 +22,14 @@ npm start
 This will automatically execute the npm install command to avoid adding dependencies during development and others get errors because they forgotten to run it previously.
 
 On succesfull init it will keep watching for changes and compiling the code with the new changes
+
+PRODUCTION BUILD
+
+```javascript
+npm run release
+```
+
+After the production task is completed the "dist" folder will contain the final files, compiled, concatenated and minified for server deployment.
 
 Unit tests:
 
