@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "clean": "rimraf *.log *.pid",
-    "prestart": "npm install",
+    "prestart": "npm install && npm update",
     "release": "gulp prod",
     "start": "gulp",
     "stop": "npm run clean",
@@ -83,7 +83,8 @@
     "sinon": "1.17.6",
     "stringify": "5.1.0",
     "vinyl-buffer": "1.0.0",
-    "vinyl-source-stream": "1.1.0"
+    "vinyl-source-stream": "1.1.0",
+    "watchify": "3.7.0"
   },
   "dependencies": {
     "angular": "1.5.8",
