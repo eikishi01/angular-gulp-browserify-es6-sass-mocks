@@ -5,12 +5,13 @@
   "main": "app.js",
   "scripts": {
     "clean": "rimraf *.log *.pid",
-    "prestart": "npm install",
+    "prestart": "npm install && npm update",
     "release": "gulp prod",
     "start": "gulp",
     "stop": "npm run clean",
     "test": "gulp build-test",
-    "test:watch": "gulp build-test:watch"
+    "test:watch": "gulp build-test:watch",
+    "command": "gulp plugins"
   },
   "repository": {
     "type": "git",
@@ -51,6 +52,7 @@
     "gulp-eslint": "3.0.1",
     "gulp-if": "2.0.2",
     "gulp-livereload": "3.8.1",
+    "gulp-load-plugins": "1.4.0",
     "gulp-markdown": "1.2.0",
     "gulp-nodemon": "2.2.1",
     "gulp-replace": "0.5.4",
@@ -81,7 +83,8 @@
     "sinon": "1.17.6",
     "stringify": "5.1.0",
     "vinyl-buffer": "1.0.0",
-    "vinyl-source-stream": "1.1.0"
+    "vinyl-source-stream": "1.1.0",
+    "watchify": "3.7.0"
   },
   "dependencies": {
     "angular": "1.5.8",
