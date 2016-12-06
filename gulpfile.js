@@ -204,7 +204,8 @@ function rebundle() {
         .on('error', handleError)
         .pipe(buffer())
         .pipe(
-            plugins.gulpif(!bundle.prod,
+            plugins.gulpif(
+                !bundle.prod,
                 plugins.sourcemaps.init({
                     loadMaps: true
                 })
@@ -224,7 +225,12 @@ function rebundle() {
             )
         )
         .pipe(gulp.dest(filePath.build.dest))
-        .pipe(plugins.livereload())
+        .pipe(
+            plugins.gulpif(
+                !bundle.prod,
+                plugins.livereload()
+            )
+        )
     ;
 }
 
