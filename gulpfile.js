@@ -14,6 +14,7 @@ var pJoin = function() {
     del =           require('del'),
     gulp =          require('gulp'),
     KarmaServer =   require('karma').Server,
+    watchify =      require('watchify'),
     LRPort =        35729,
     MSPort =        7000,
     plugins =       require('gulp-load-plugins')({
@@ -35,6 +36,17 @@ var pJoin = function() {
         build: {
             dest: DIST_PATH
         },
+        js: {
+            watch: [
+                '!' + APP_PATH + '/**/*.spec.js',
+                APP_PATH + '/*.js',
+                APP_PATH + '/**/*.js'
+            ],
+            specs: [
+                APP_PATH + '/*.spec.js',
+                APP_PATH + '/**/*.spec.js'
+            ]
+        },
         lint: {
             src: [
                 APP_PATH + '/*.js',
@@ -42,13 +54,7 @@ var pJoin = function() {
             ]
         },
         browserify: {
-            src: APP_PATH + '/app.js',
-            watch: [
-                '!./app/**/*.spec.js',
-                APP_PATH + '/*.js',
-                APP_PATH + '/**/*.js',
-                APP_PATH + '/**/*.html'
-            ]
+            src: APP_PATH + '/app.js'
         },
         styles: {
             src: APP_PATH + '/app.scss',
@@ -58,6 +64,9 @@ var pJoin = function() {
             ]
         },
         assets: {
+            templates: {
+                watch: [APP_PATH + '/**/*.html']
+            },
             images: {
                 src: APP_PATH + '/img/**/*',
                 watch: [
@@ -160,7 +169,7 @@ gulp.task('clean-reports', function() {
 // =======================================================================
 // ESLint
 // =======================================================================
-gulp.task('js-lint', function() {
+gulp.task('ESLint', function() {
     return gulp.src(filePath.lint.src)
     .pipe(plugins.eslint())
     .pipe(plugins.eslint.format());
@@ -238,7 +247,8 @@ function configureBundle(prod, babelify) {
     prod = prod !== undefined ? prod : false;
     babelify = babelify !== undefined ? babelify : true;
 
-    bundle.bundler = browserify(bundle.conf);
+    // Use watchify to improve browserify rebundle providing cache
+    bundle.bundler = watchify(browserify(bundle.conf));
 
     if (babelify) {
         bundle.bundler.transform(babel.configure({
@@ -247,12 +257,16 @@ function configureBundle(prod, babelify) {
         }));
     }
 
+    bundle.prod = prod;
+    bundle.babelify = babelify;
+
+    // NO NEED TO LISTEN THE UPDATE EVENT SINCE WE HANDLE IT IN THE GULP WATCH BELOW
+    // OTHERWISE WE'LL GET DOUBLE RELOAD FIRED
+    /*
     if (!prod) {
         bundle.bundler.on('update', rebundle);
     }
-
-    bundle.prod = prod;
-    bundle.babelify = babelify;
+    */
 }
 
 gulp.task('bundleJS-dev', function() {
@@ -373,11 +387,12 @@ gulp.task('copy-favicon', function() {
 // Watch for changes
 // =======================================================================
 gulp.task('watch', function() {
-    plugins.gutil.log('---> Watching...');
-    gulp.watch(filePath.styles.watch, ['SASS']);
-    gulp.watch(filePath.assets.images.watch, ['copy-images']);
-    gulp.watch(filePath.copyIndex.watch, ['copy-index']);
-    gulp.watch(filePath.browserify.watch, ['js-lint', 'bundleJS-dev']);
+    gulp.watch(filePath.styles.watch,           ['SASS']);
+    gulp.watch(filePath.assets.images.watch,    ['copy-images']);
+    gulp.watch(filePath.assets.templates.watch, ['bundleJS-dev']);
+    gulp.watch(filePath.copyIndex.watch,        ['copy-index']);
+    gulp.watch(filePath.js.watch,               function() { runSequence('ESLint', 'bundleJS-dev'); });
+    gulp.watch(filePath.js.specs,               function() { runSequence('ESLint'); });
     // gulp.watch(filePath.vendorJS.src, ['vendor-js']); //NOSONAR
     // gulp.watch(filePath.vendorCSS.src, ['vendor-css']);
 });
@@ -412,7 +427,7 @@ gulp.task('karma', function(done) {
 // run "gulp test" in terminal to start the karma server and evaluate all the tests
 gulp.task('build-test:watch', function(callback) {
     runSequence(
-        ['clean-reports', 'js-lint'],
+        ['clean-reports', 'ESLint'],
         ['karma:watch'],
         callback
     );
@@ -421,7 +436,7 @@ gulp.task('build-test:watch', function(callback) {
 // run "gulp test" in terminal to start the karma server and evaluate all the tests
 gulp.task('build-test', function(callback) {
     runSequence(
-        ['clean-reports', 'js-lint'],
+        ['clean-reports', 'ESLint'],
         ['karma'],
         callback
     );
@@ -431,7 +446,7 @@ gulp.task('build-test', function(callback) {
 gulp.task('build-prod', function(callback) {
     runSequence(
         // Cleaners and Linters
-        ['clean-dist', 'js-lint'],
+        ['clean-dist'],
         // JS Tasks
         ['bundleJS-prod'/*, 'vendor-js'*/],
         // CSS Tasks
@@ -446,7 +461,7 @@ gulp.task('build-prod', function(callback) {
 gulp.task('build', function(callback) {
     runSequence(
         // Cleaners and Linters
-        ['clean-dist', 'js-lint'],
+        ['clean-dist', 'ESLint'],
         // JS Tasks
         ['bundleJS-dev'/*, 'vendor-js'*/],
         // CSS Tasks
