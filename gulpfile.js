@@ -1,4 +1,4 @@
-/*eslint no-console: "allow"*/
+/* eslint-disable no-console, no-undef */
 
 'use strict';
 
@@ -31,7 +31,6 @@ var pJoin = function() {
     NODE_MODS_DN =  'node_modules',
     DIST_PATH =     './dist',
     APP_PATH =      './app',
-    DOCS_PATH =     './docs',
     filePath = {
         build: {
             dest: DIST_PATH
@@ -460,10 +459,6 @@ gulp.task('build', function(callback) {
         ['watch', 'mock-server'],
         callback
     );
-});
-
-gulp.task('plugins', function(callback) {
-    console.log(plugins);
 });
 
 gulp.task('default', ['build']);
