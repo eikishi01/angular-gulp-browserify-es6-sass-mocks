@@ -54,7 +54,13 @@ var pJoin = function() {
             ]
         },
         browserify: {
-            src: APP_PATH + '/app.js'
+            src: APP_PATH + '/app.js',
+            watch: [
+                '!./app/**/*.spec.js',
+                APP_PATH + '/*.js',
+                APP_PATH + '/**/*.js',
+                APP_PATH + '/**/*.html'
+            ]
         },
         styles: {
             src: APP_PATH + '/app.scss',
@@ -183,8 +189,7 @@ gulp.task('docs', function() {
     .pipe(plugins.markdown())
     .pipe(plugins.wrap({src: 'docs/template.html'}))
     .pipe(gulp.dest(filePath.docs.dest))
-    .on('error', handleError)
-    .on('end', function() { plugins.gutil.log('---> Docs task completed'); });
+    .on('error', handleError);
 });
 
 // =======================================================================
@@ -247,8 +252,16 @@ function configureBundle(prod, babelify) {
     prod = prod !== undefined ? prod : false;
     babelify = babelify !== undefined ? babelify : true;
 
-    // Use watchify to improve browserify rebundle providing cache
-    bundle.bundler = watchify(browserify(bundle.conf));
+    bundle.prod = prod;
+    bundle.babelify = babelify;
+
+    if (!prod) {
+        // Use watchify to improve browserify rebundle providing cache
+        bundle.bundler = watchify(browserify(bundle.conf));
+        bundle.bundler.on('update', rebundle);
+    } else {
+        bundle.bundler = browserify(bundle.conf);
+    }
 
     if (babelify) {
         bundle.bundler.transform(babel.configure({
@@ -256,17 +269,6 @@ function configureBundle(prod, babelify) {
             presets: ['es2015']
         }));
     }
-
-    bundle.prod = prod;
-    bundle.babelify = babelify;
-
-    // NO NEED TO LISTEN THE UPDATE EVENT SINCE WE HANDLE IT IN THE GULP WATCH BELOW
-    // OTHERWISE WE'LL GET DOUBLE RELOAD FIRED
-    /*
-    if (!prod) {
-        bundle.bundler.on('update', rebundle);
-    }
-    */
 }
 
 gulp.task('bundleJS-dev', function() {
@@ -295,7 +297,6 @@ function sassFilesProcess() {
     .pipe(plugins.gulpif(bundle.prod, plugins.cleanCss()))
     .pipe(gulp.dest(filePath.build.dest))
         .on('error', handleError)
-        .on('end', function() { plugins.gutil.log('---> Styles task completed'); })
     .pipe(plugins.livereload())
     ;
 }
@@ -309,7 +310,6 @@ gulp.task('copy-images', function() {
     return gulp.src(filePath.assets.images.src)
         .on('error', handleError)
     .pipe(gulp.dest(filePath.assets.images.dest))
-        .on('end', function() { plugins.gutil.log('---> Images copy completed'); })
     .pipe(plugins.livereload())
     ;
 });
@@ -321,7 +321,6 @@ gulp.task('copy-fonts', function() {
     return gulp.src(filePath.assets.fonts.src)
             .on('error', handleError)
         .pipe(gulp.dest(filePath.assets.fonts.dest))
-            .on('end', function() { plugins.gutil.log('---> Fonts copy task completed'); })
         ;
 });
 
@@ -339,7 +338,7 @@ gulp.task('vendor-js', function() {
     .pipe(buffer())
     .pipe(plugins.uglify())
     .pipe(gulp.dest(filePath.build.dest))
-    .on('end', function() { plugins.gutil.log('---> VendorJS task completed'); });
+    ;
 });
 
 // =======================================================================
@@ -352,7 +351,6 @@ gulp.task('vendor-css', function() {
     // update paths from vendor files like fontawesome to root folder
     .pipe(plugins.replace('url(../', 'url(./'))
     .pipe(gulp.dest(filePath.build.dest))
-        .on('end', function() { plugins.gutil.log('---> VendorCSS task completed'); })
     ;
 });
 
@@ -369,7 +367,6 @@ gulp.task('copy-index', function() {
         )
     )
     .pipe(gulp.dest(filePath.build.dest))
-        .on('end', function() { plugins.gutil.log('---> index.html copy task completed'); })
     .pipe(plugins.livereload())
     ;
 });
@@ -380,21 +377,22 @@ gulp.task('copy-index', function() {
 gulp.task('copy-favicon', function() {
     return gulp.src(filePath.copyFavicon.src)
     .pipe(gulp.dest(filePath.build.dest))
-        .on('end', function() { plugins.gutil.log('---> favicon copy task completed'); });
+    ;
 });
 
 // =======================================================================
 // Watch for changes
 // =======================================================================
 gulp.task('watch', function() {
-    gulp.watch(filePath.styles.watch,           ['SASS']);
+    // gulp.watch(filePath.assets.templates.watch, ['bundleJS-dev']);
+    // gulp.watch(filePath.vendorJS.src,        ['vendor-js']); //NOSONAR
     gulp.watch(filePath.assets.images.watch,    ['copy-images']);
-    gulp.watch(filePath.assets.templates.watch, ['bundleJS-dev']);
     gulp.watch(filePath.copyIndex.watch,        ['copy-index']);
-    gulp.watch(filePath.js.watch,               function() { runSequence('ESLint', 'bundleJS-dev'); });
     gulp.watch(filePath.js.specs,               function() { runSequence('ESLint'); });
-    // gulp.watch(filePath.vendorJS.src, ['vendor-js']); //NOSONAR
-    // gulp.watch(filePath.vendorCSS.src, ['vendor-css']);
+    gulp.watch(filePath.js.watch,               function() { runSequence('ESLint'); });
+    gulp.watch(filePath.styles.watch,           ['SASS']);
+    gulp.watch(filePath.vendorCSS.src,          ['vendor-css']);
+    plugins.gutil.log('---> Watching for changes...');
 });
 
 // =======================================================================

@@ -9,6 +9,11 @@
             "@disable": true,
             "args": [],
             "excludes": []
+        },
+        "eslint": {
+            "excludes": [
+                "**/node_modules/**"
+            ]
         }
     }
 }

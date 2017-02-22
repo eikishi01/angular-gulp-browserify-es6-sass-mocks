@@ -7,7 +7,8 @@
         "mocha": true,
         "phantomjs": true,
         "jquery": true,
-        "jasmine": true
+        "jasmine": true,
+        "node": true
     },
     "extends": "eslint:recommended",
     "rules": {
