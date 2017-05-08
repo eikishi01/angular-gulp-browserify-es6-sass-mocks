@@ -1,6 +1,6 @@
 {
     "name": "angular-app-seed",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "description": "Angular App seed including Gulp, ES6 support, angularJS 1.5, Browserify, Sass, Express mock server etc.",
     "main": "app.js",
     "scripts": {
