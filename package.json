@@ -6,7 +6,7 @@
     "scripts": {
         "clean": "rimraf *.log *.pid",
         "prestart": "npm install && npm update",
-        "release": "gulp prod",
+        "release": "npm run prestart && gulp prod",
         "start": "gulp",
         "stop": "npm run clean",
         "test": "gulp build-test",
