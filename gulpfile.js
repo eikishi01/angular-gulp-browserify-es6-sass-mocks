@@ -2,9 +2,7 @@
 
 'use strict';
 
-var pJoin = function() {
-        return Array.prototype.slice.call(arguments,0).join('/');
-    },
+var pJoin =         ( ...path ) => path.join( '/' ),
     // =======================================================================
     // Gulp Plugins
     // =======================================================================
