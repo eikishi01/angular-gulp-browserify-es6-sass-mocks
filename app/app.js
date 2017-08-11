@@ -4,7 +4,7 @@ window.jQuery = window.$ = window.jQuery || require('jquery');
 
 const angular = require('angular'),
     dependencies = [
-        require('angular-ui-router'),
+        require('angular-ui-router').default,
         require('./core').name,
         require('./modules/home').name
     ];
