@@ -2,22 +2,31 @@
 
 function commonInit($injector, $rootScope) {
 
-    var $state = $injector.get('$state');
+    var $state =        $injector.get('$state'),
+        // $trace =        $injector.get('$trace'),
+        $log =          $injector.get('$log'),
+        $transitions =  $injector.get('$transitions');
 
     $rootScope.$state = $state;
 
-    $rootScope.$on('$stateChangeError', function(evt, to, toParams, from, fromParams, error) {
-        if (error.redirectTo) {
-            $state.go(error.redirectTo);
-        }
+    // $trace.enable('TRANSITION');
+
+    $transitions.onStart({ }, function(trans) {
+        trans.promise.finally(()=>{
+            $log.info('TRANSITION START:', 'INFO:', 'https://ui-router.github.io/ng1/docs/latest/classes/transition.transitionservice.html#onstart');
+        });
     });
 
-    $rootScope.$on('$stateChangeStart', function(/*event, toState, toParameters, fromState, fromParameters*/) {
-        // do nothing
+    $transitions.onSuccess({ }, function(trans) {
+        trans.promise.finally(()=>{
+            $log.info('TRANSITION SUCCESS:', 'INFO:', 'https://ui-router.github.io/ng1/docs/latest/classes/transition.transitionservice.html#onsuccess');
+        });
     });
 
-    $rootScope.$on('$stateChangeSuccess', function(/*event, toState, toParameters, fromState, fromParameters*/) {
-        // do nothing
+    $transitions.onError({ }, function(trans) {
+        trans.promise.finally(()=>{
+            $log.info('TRANSITION ERROR:', 'INFO:', 'https://ui-router.github.io/ng1/docs/latest/classes/transition.transitionservice.html#onerror');
+        });
     });
 
     // Make sure the page scrolls to the top on all state transitions
