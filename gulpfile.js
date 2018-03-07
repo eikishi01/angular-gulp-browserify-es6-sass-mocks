@@ -1,12 +1,10 @@
 /* eslint-disable no-console, no-undef */
 
 'use strict';
-
-var pJoin =         ( ...path ) => path.join( '/' ),
-    // =======================================================================
-    // Gulp Plugins
-    // =======================================================================
-    babel =         require('babelify'),
+// =======================================================================
+// Gulp Plugins
+// =======================================================================
+var babelify =      require('babelify'),
     browserify =    require('browserify'),
     buffer =        require('vinyl-buffer'),
     del =           require('del'),
@@ -27,7 +25,6 @@ var pJoin =         ( ...path ) => path.join( '/' ),
     // =======================================================================
     // File Paths
     // =======================================================================
-    NODE_MODS_DN =  'node_modules',
     DIST_PATH =     './dist',
     APP_PATH =      './app',
     filePath = {
@@ -80,8 +77,8 @@ var pJoin =         ( ...path ) => path.join( '/' ),
             },
             fonts: {
                 src: [
-                    pJoin(NODE_MODS_DN,'connect-fonts-roboto','fonts','default','*.woff'),
-                    pJoin(NODE_MODS_DN,'connect-fonts-robotocondensed','fonts','default','*.woff')
+                    __dirname + '/node_modules/connect-fonts-roboto/fonts/default/*.woff',
+                    __dirname + '/node_modules/connect-fonts-robotocondensed/fonts/default/*.woff'
                 ],
                 dest: DIST_PATH + '/fonts/'
             }
@@ -89,16 +86,18 @@ var pJoin =         ( ...path ) => path.join( '/' ),
         vendorJS: {
             // These files will be bundled into a single vendor.js file that's called at the bottom of index.html
             // These are not npm modules or bower vendors
-            src: []
+            src: [
+                __dirname + '/node_modules/babel-polyfill/dist/polyfill.min.js'
+            ]
         },
         vendorCSS: {
             src: [
-                pJoin(NODE_MODS_DN,'normalize.css','normalize.css'),
+                __dirname + '/node_modules/normalize.css/normalize.css',
             ]
         },
         docs: {
             src: [
-                pJoin('README.md')
+                __dirname + '/README.md'
             ],
             dest: DIST_PATH + '/docs/'
         },
@@ -116,7 +115,7 @@ var pJoin =         ( ...path ) => path.join( '/' ),
     // =======================================================================
     bundle =    {},
     prodHash =  Date.now(),
-    cssSupBrowsers = ['last 2 versions', '> 5%'];
+    supportedBrowsers = ['ie 11', 'Firefox >= 45', 'last 2 Chrome versions'];
 
 // =======================================================================
 // Error Handling
@@ -142,15 +141,15 @@ gulp.task('mock-server', function() {
             ROOT_PATH:  DIST_PATH
         }
     })
-    .on('change', function() {
-        console.log('[nodemon] mock server updated restarting');
-    })
-    .on('crash', function() {
-        console.log('[nodemon] crashed restarting server');
-    })
-    .on('restart', function() {
-        console.log('[nodemon] restarted mock server');
-    });
+        .on('change', function() {
+            console.log('[nodemon] mock server updated restarting');
+        })
+        .on('crash', function() {
+            console.log('[nodemon] crashed restarting server');
+        })
+        .on('restart', function() {
+            console.log('[nodemon] restarted mock server');
+        });
 
     // Start live reload
     plugins.livereload.listen({port: LRPort});
@@ -175,8 +174,8 @@ gulp.task('clean-reports', function() {
 // =======================================================================
 gulp.task('ESLint', function() {
     return gulp.src(filePath.lint.src)
-    .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format());
+        .pipe(plugins.eslint())
+        .pipe(plugins.eslint.format());
 });
 
 // =======================================================================
@@ -184,10 +183,10 @@ gulp.task('ESLint', function() {
 // =======================================================================
 gulp.task('docs', function() {
     return gulp.src(filePath.docs.src)
-    .pipe(plugins.markdown())
-    .pipe(plugins.wrap({src: 'docs/template.html'}))
-    .pipe(gulp.dest(filePath.docs.dest))
-    .on('error', handleError);
+        .pipe(plugins.markdown())
+        .pipe(plugins.wrap({src: 'docs/template.html'}))
+        .pipe(gulp.dest(filePath.docs.dest))
+        .on('error', handleError);
 });
 
 // =======================================================================
@@ -245,13 +244,11 @@ function rebundle() {
     ;
 }
 
-function configureBundle(prod, babelify) {
+function configureBundle(prod) {
 
     prod = prod !== undefined ? prod : false;
-    babelify = babelify !== undefined ? babelify : true;
 
     bundle.prod = prod;
-    bundle.babelify = babelify;
 
     if (!prod) {
         // Use watchify to improve browserify rebundle providing cache
@@ -261,12 +258,16 @@ function configureBundle(prod, babelify) {
         bundle.bundler = browserify(bundle.conf);
     }
 
-    if (babelify) {
-        bundle.bundler.transform(babel.configure({
-            // Use all of the ES2015 spec
-            presets: ['es2015']
-        }));
-    }
+    bundle.bundler.transform(babelify, {
+        'presets': [
+            ['env', {
+                'targets': {
+                    'browsers': supportedBrowsers
+                },
+                'useBuiltIns': true
+            }]
+        ]
+    });
 }
 
 gulp.task('bundleJS-dev', function() {
@@ -285,17 +286,17 @@ gulp.task('bundleJS-prod', function() {
 
 function sassFilesProcess() {
     return gulp.src(filePath.styles.src)
-    .pipe(plugins.gulpif(!bundle.prod, plugins.sourcemaps.init()))
-    .pipe(plugins.sass())
+        .pipe(plugins.gulpif(!bundle.prod, plugins.sourcemaps.init()))
+        .pipe(plugins.sass())
         .on('error', handleError)
-    .pipe(plugins.autoprefixer({
-        browsers: cssSupBrowsers
-    }))
-    .pipe(plugins.gulpif(!bundle.prod, plugins.sourcemaps.write()))
-    .pipe(plugins.gulpif(bundle.prod, plugins.cleanCss()))
-    .pipe(gulp.dest(filePath.build.dest))
+        .pipe(plugins.autoprefixer({
+            browsers: supportedBrowsers
+        }))
+        .pipe(plugins.gulpif(!bundle.prod, plugins.sourcemaps.write()))
+        .pipe(plugins.gulpif(bundle.prod, plugins.cleanCss()))
+        .pipe(gulp.dest(filePath.build.dest))
         .on('error', handleError)
-    .pipe(plugins.livereload())
+        .pipe(plugins.livereload())
     ;
 }
 
@@ -307,8 +308,8 @@ gulp.task('SASS', sassFilesProcess);
 gulp.task('copy-images', function() {
     return gulp.src(filePath.assets.images.src)
         .on('error', handleError)
-    .pipe(gulp.dest(filePath.assets.images.dest))
-    .pipe(plugins.livereload())
+        .pipe(gulp.dest(filePath.assets.images.dest))
+        .pipe(plugins.livereload())
     ;
 });
 
@@ -317,25 +318,19 @@ gulp.task('copy-images', function() {
 // =======================================================================
 gulp.task('copy-fonts', function() {
     return gulp.src(filePath.assets.fonts.src)
-            .on('error', handleError)
+        .on('error', handleError)
         .pipe(gulp.dest(filePath.assets.fonts.dest))
-        ;
+    ;
 });
 
 // =======================================================================
 // Vendor JS Task
 // =======================================================================
 gulp.task('vendor-js', function() {
-    var b = browserify({
-        debug: true,
-        require: filePath.vendorJS.src
-    });
-    return b.bundle()
-    .pipe(source('vendor.js'))
-    .on('error', handleError)
-    .pipe(buffer())
-    .pipe(plugins.uglify())
-    .pipe(gulp.dest(filePath.build.dest))
+    return gulp.src(filePath.vendorJS.src)
+        .pipe(plugins.concat('vendor.js'))
+        .on('error', handleError)
+        .pipe(gulp.dest(filePath.build.dest))
     ;
 });
 
@@ -344,11 +339,11 @@ gulp.task('vendor-js', function() {
 // =======================================================================
 gulp.task('vendor-css', function() {
     return gulp.src(filePath.vendorCSS.src)
-    .pipe(plugins.concat('vendor.css'))
+        .pipe(plugins.concat('vendor.css'))
         .on('error', handleError)
     // update paths from vendor files like fontawesome to root folder
-    .pipe(plugins.replace('url(../', 'url(./'))
-    .pipe(gulp.dest(filePath.build.dest))
+        .pipe(plugins.replace('url(../', 'url(./'))
+        .pipe(gulp.dest(filePath.build.dest))
     ;
 });
 
@@ -357,15 +352,15 @@ gulp.task('vendor-css', function() {
 // =======================================================================
 gulp.task('copy-index', function() {
     return gulp.src(filePath.copyIndex.src)
-    .pipe(
-        plugins.gulpif(
-            !bundle.prod,
-            plugins.replace('[BUNDLEJS]', 'bundle.js'),
-            plugins.replace('[BUNDLEJS]', 'bundle-' + prodHash + '.js')
+        .pipe(
+            plugins.gulpif(
+                !bundle.prod,
+                plugins.replace('[BUNDLEJS]', 'bundle.js'),
+                plugins.replace('[BUNDLEJS]', 'bundle-' + prodHash + '.js')
+            )
         )
-    )
-    .pipe(gulp.dest(filePath.build.dest))
-    .pipe(plugins.livereload())
+        .pipe(gulp.dest(filePath.build.dest))
+        .pipe(plugins.livereload())
     ;
 });
 
@@ -374,7 +369,7 @@ gulp.task('copy-index', function() {
 // =======================================================================
 gulp.task('copy-favicon', function() {
     return gulp.src(filePath.copyFavicon.src)
-    .pipe(gulp.dest(filePath.build.dest))
+        .pipe(gulp.dest(filePath.build.dest))
     ;
 });
 
@@ -383,7 +378,7 @@ gulp.task('copy-favicon', function() {
 // =======================================================================
 gulp.task('watch', function() {
     // gulp.watch(filePath.assets.templates.watch, ['bundleJS-dev']);
-    // gulp.watch(filePath.vendorJS.src,        ['vendor-js']); //NOSONAR
+    gulp.watch(filePath.vendorJS.src,           ['vendor-js']);
     gulp.watch(filePath.assets.images.watch,    ['copy-images']);
     gulp.watch(filePath.copyIndex.watch,        ['copy-index']);
     gulp.watch(filePath.js.specs,               function() { runSequence('ESLint'); });
@@ -444,7 +439,7 @@ gulp.task('build-prod', function(callback) {
         // Cleaners and Linters
         ['clean-dist'],
         // JS Tasks
-        ['bundleJS-prod'/*, 'vendor-js'*/],
+        ['bundleJS-prod', 'vendor-js'],
         // CSS Tasks
         ['vendor-css', 'SASS'],
         // Assets Tasks
@@ -459,7 +454,7 @@ gulp.task('build', function(callback) {
         // Cleaners and Linters
         ['clean-dist', 'ESLint'],
         // JS Tasks
-        ['bundleJS-dev'/*, 'vendor-js'*/],
+        ['bundleJS-dev', 'vendor-js'],
         // CSS Tasks
         ['vendor-css', 'SASS'],
         // Assets Tasks
