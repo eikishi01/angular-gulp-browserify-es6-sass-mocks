@@ -115,7 +115,7 @@ var babelify =      require('babelify'),
     // =======================================================================
     bundle =    {},
     prodHash =  Date.now(),
-    supportedBrowsers = ['ie 11', 'Firefox >= 45', 'last 2 Chrome versions'];
+    supportedBrowsers = ['ie 11', 'last 2 Firefox versions', 'last 2 Chrome versions'];
 
 // =======================================================================
 // Error Handling

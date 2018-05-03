@@ -93,7 +93,7 @@
         "angular": "1.x",
         "angular-animate": "1.x",
         "angular-mocks": "1.x",
-        "babel-polyfill": "^6.26.0",
+        "babel-polyfill": "6.26.0",
         "jquery": "3.x",
         "normalize.css": "8.x"
     }
